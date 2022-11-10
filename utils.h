@@ -75,9 +75,10 @@ float hit_triangle(const Vec3f &A,
     
     Constraint: 
         alpha + beta + gamma = 1.0
-        0 < alpha < 1 
-        0 < beta  < 1 
-        0 < gamma < 1 
+        beta + gamma <_ 1
+        0 <_ beta
+        0 <_ gamma
+        t_min <= t <= t_max
     
     Trick: Calculate beta and gamma only. alpha = 1 - beta - gamma.
     */
@@ -102,10 +103,10 @@ float hit_triangle(const Vec3f &A,
     t = determinant_t / determinant_A;
     
     // Hitting conditions
-    bool c1, c2, c3;
-    c1 = (beta + gamma <= 1); c2 = (beta  >= 0); c3 = (gamma >= 0);
+    bool c1, c2, c3, c4;
+    c1 = (beta + gamma <= 1); c2 = (beta  >= 0); c3 = (gamma >= 0); c4 = (t >= 0); // TODO: Consider again c4.  
 
-    if ((c1 && c2) && c3) return t;
+    if ((c1 && c2) && (c3 && c4)) return t;
     else  return -1;
 }
 
