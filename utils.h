@@ -37,7 +37,7 @@ float hit_sphere(const Point3f &center, float radius, const Ray &r) {
     // Calculate A, B and C 
     float a = dot(unit_direction, unit_direction);
     float b = 2 * dot(unit_direction, o_minus_c);
-    float c = dot(o_minus_c, o_minus_c) - r*r;
+    float c = dot(o_minus_c, o_minus_c) - radius*radius;
     float discriminant = b*b - 4*a*c;
 
     // Find t
@@ -50,9 +50,9 @@ float hit_sphere(const Point3f &center, float radius, const Ray &r) {
     else 
     {
         float delta = sqrt(discriminant);
-        float t_1 = (-B + delta) / (2 * A);
-        float t_2 = (-B - delta) / (2 * A);
-        float t = t_1 < t_2 : t_1 ? t_2;
+        float t_1 = (-b + delta) / (2 * a);
+        float t_2 = (-b - delta) / (2 * a);
+        float t = t_1 < t_2 ? t_1 : t_2;
         return t; 
     } 
 }
