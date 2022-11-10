@@ -38,14 +38,15 @@ int main(int argc, char* argv[])
         Vec3f u, v, w;
         float l, r, b, t;
 
-        l = cam.near_plane.x; t = cam.near_plane.w;
+        l = cam.near_plane.x; r = cam.near_plane.y; 
+        b = cam.near_plane.z; t = cam.near_plane.w;
         w = -cam.gaze; v = unit_vector(cam.up); u = unit_vector(cross(v, w));
         m = cam.position + unit_vector(cam.gaze) * cam.near_distance;
         q = m + l*u + t*v;
         
         // Precompute pixel width and pixel height
         float pixel_width, pixel_height;
-        pixel_width = (r - l) / image_width;
+        pixel_width  = (r - l) / image_width;
         pixel_height = (t - b) / image_height;
 
         // Render 
