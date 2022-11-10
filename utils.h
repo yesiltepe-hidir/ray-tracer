@@ -3,6 +3,7 @@
 
 #include "parser.h"
 #include <cmath>
+#include <vector>
 
 using namespace parser;
 using namespace std;
@@ -55,6 +56,57 @@ float hit_sphere(const Point3f &center, float radius, const Ray &r) {
         float t = t_1 < t_2 ? t_1 : t_2;
         return t; 
     } 
+}
+
+float determinant(const Vec3f &A, const Vec3f &B, const Vec3f &C) {
+    // 3 x 3 Determinant
+    return A.x * (B.y * C.z - B.z * C.y) 
+        +  A.y * (B.z * C.x - B.x * C.z)
+        +  A.z * (B.x * C.y - B.y * C.x);
+}
+
+float hit_triangle(const Vec3f &A, 
+                   const Vec3f &B, 
+                   const Vec3f &C,  
+                   const Vec3f &normal_vector, 
+                   const Ray &r) {
+    /* 
+    Barycentric Coordinates (alpha, beta, gamma) solution 
+    
+    Constraint: 
+        alpha + beta + gamma = 1.0
+        0 < alpha < 1 
+        0 < beta  < 1 
+        0 < gamma < 1 
+    
+    Trick: Calculate beta and gamma only. alpha = 1 - beta - gamma.
+    */
+
+    // 1. If triangle is parallel to the ray, then there is no hitting.
+    if (dot(r.direction, normal_vector) == 0)
+        return -1;
+
+    Vec3f unit_direction    =   unit_vector(r.direction);
+
+    // Calculate determinants
+    float determinant_A     =   determinant(A - B, A - C, unit_direction);
+    float determinant_beta  =   determinant(A - r.origin, A - C, unit_direction);
+    float determinant_gamma =   determinant(A - B, A - r.origin, unit_direction);
+    float determinant_t     =   determinant(A - B, A - C, A - r.origin);
+
+    // Get alpha betta gamma and t.
+    float alpha, beta, gamma, t;
+    beta = determinant_beta / determinant_A;
+    gamma = determinant_gamma / determinant_A;
+    alpha = 1 - beta - gamma;
+    t = determinant_t / determinant_A;
+    
+    // Hitting conditions
+    bool c1, c2, c3;
+    c1 = (beta + gamma <= 1); c2 = (beta  >= 0); c3 = (gamma >= 0);
+
+    if ((c1 && c2) && c3) return t;
+    else  return -1;
 }
 
 #endif 
