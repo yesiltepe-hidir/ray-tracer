@@ -24,7 +24,7 @@ Ray generate_ray(int i,
     float s_u, s_v;
     s_u = (i + 0.5) * pixel_width;
     s_v = (j + 0.5) * pixel_height;
-    s = q + s_u * unit_vector(u) - s_v * unit_vector(v);
+    s = q + s_u*u - s_v*v;
 
     // Generate the ray
     Ray ray = Ray(cam.position, s - cam.position); 
@@ -109,5 +109,7 @@ float hit_triangle(const Vec3f &A,
     if ((c1 && c2) && (c3 && c4)) return t;
     else  return -1;
 }
+
+
 
 #endif 
