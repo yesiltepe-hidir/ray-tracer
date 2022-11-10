@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
         float l, r, b, t;
 
         l = cam.near_plane.x; t = cam.near_plane.w;
-        w = -cam.gaze; v = cam.up; u = cross(v, w);
+        w = -cam.gaze; v = unit_vector(cam.up); u = unit_vector(cross(v, w));
         m = cam.position + unit_vector(cam.gaze) * cam.near_distance;
-        q = m + l * unit_vector(u) + t * unit_vector(v);
+        q = m + l*u + t*v;
         
         // Precompute pixel width and pixel height
         float pixel_width, pixel_height;
