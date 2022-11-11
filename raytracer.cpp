@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
 
         l = cam.near_plane.x; r = cam.near_plane.y; 
         b = cam.near_plane.z; t = cam.near_plane.w;
-        w = -1 * cam.gaze; v = unit_vector(cam.up); u = unit_vector(cross(v, w));
-        m = cam.position + unit_vector(cam.gaze) * cam.near_distance;
+        w = -cam.gaze; v = unit_vector(cam.up); u = unit_vector(cross(v, w));
+        m = cam.position + cam.gaze * cam.near_distance;
         q = m + l*u + t*v;
         
         // Precompute pixel width and pixel height
