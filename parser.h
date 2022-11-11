@@ -8,17 +8,23 @@ namespace parser
 {
     //Notice that all the structures are as simple as possible
     //so that you are not enforced to adopt any style or design.
+    struct Vec3i
+    {
+        int x, y, z;
+        Vec3i() { x = 0; y = 0; z = 0;}
+        Vec3i(int a, int b, int c) { x = a;   y = b;   z = c;   }
+        // void operator=(const Vec3f &v)   { x = v.x; y = v.y; z = v.z; }
+        void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
+    };
+
     struct Vec3f
     {
         float x, y, z;
         Vec3f() { x = 0; y = 0; z = 0;}
-        Vec3f(float a, float b, float c) { x = a; y = b; z = c;}
-
-    };
-
-    struct Vec3i
-    {
-        int x, y, z;
+        Vec3f(const Vec3i &v)            { x = v.x; y = v.y; z = v.z; }
+        Vec3f(float a, float b, float c) { x = a;   y = b;   z = c;   }
+        void operator=(const Vec3f &v)   { x = v.x; y = v.y; z = v.z; }
+        void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
     };
 
     struct Vec4f
