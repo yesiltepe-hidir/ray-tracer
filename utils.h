@@ -43,7 +43,7 @@ Ray generate_ray(int i,
     s = q + s_u*u - s_v*v;
 
     // Generate the ray
-    Ray ray = Ray(cam.position, unit_vector(s - cam.position)); 
+    Ray ray = Ray(cam.position, s - cam.position); 
     return ray;
 }
 
@@ -68,7 +68,7 @@ float hit_sphere(const Point3f &center, float radius, const Ray &r) {
         float delta = sqrt(discriminant);
         float t_1 = (-b + delta) / (2 * a);
         float t_2 = (-b - delta) / (2 * a);
-        float t = t_1 < t_2 ? t_1 : t_2;
+        float t = min(t_1, t_2);
         return t; 
     } 
 }
@@ -99,7 +99,7 @@ float hit_triangle(const Vec3f &A,
     */
 
     // 1. If triangle is parallel to the ray, then there is no hitting.
-    if (dot(r.direction, normal_vector) == 0)
+    if (dot(r.direction, normal_vector) == 0) 
         return -1;
 
     // Calculate determinants
@@ -117,7 +117,10 @@ float hit_triangle(const Vec3f &A,
     
     // Hitting conditions
     bool c1, c2, c3, c4;
-    c1 = (beta + gamma <= 1); c2 = (beta  >= 0); c3 = (gamma >= 0); c4 = (t >= 0); // TODO: Consider again c4.  
+    c1 = (beta + gamma <= 1); 
+    c2 = (beta  >= 0); 
+    c3 = (gamma >= 0); 
+    c4 = (t >= 0); // TODO: Consider again c4.  
 
     if ((c1 && c2) && (c3 && c4)) return t;
     else  return -1;
@@ -145,11 +148,9 @@ Vec3f make_life_more_colorful(const Scene &scene,
     // Base condition
     if (flag == false && recursion_depth == 0)
     {
-        // cout << "Base: " << color << endl;
         return color;
     }
         
-
     // Sphere
     Vec3f center;
     float radius;
@@ -191,7 +192,6 @@ Vec3f make_life_more_colorful(const Scene &scene,
     if(min_intersection == MAX)
     {
         color = scene.background_color;
-        // cout << "No intersection: " << color << endl;
         return color;
     }
         
@@ -202,7 +202,6 @@ Vec3f make_life_more_colorful(const Scene &scene,
     // Intersection: Mesh
     if (min_mesh_idx > -1)
     {
-        // cout << "Intersection: Mesh" << endl;
         A = scene.vertex_data[scene.meshes[min_mesh_idx].faces[min_face_idx].v0_id-1];
         B = scene.vertex_data[scene.meshes[min_mesh_idx].faces[min_face_idx].v1_id-1];
         C = scene.vertex_data[scene.meshes[min_mesh_idx].faces[min_face_idx].v2_id-1];
@@ -213,7 +212,6 @@ Vec3f make_life_more_colorful(const Scene &scene,
     // Intersection: Triangle
     else if (min_triangle_idx > -1)
     {
-        // // cout << "Intersection: Triangle" << endl;
         A = scene.vertex_data[scene.triangles[min_triangle_idx].indices.v0_id-1];       
         B = scene.vertex_data[scene.triangles[min_triangle_idx].indices.v1_id-1];       
         C = scene.vertex_data[scene.triangles[min_triangle_idx].indices.v2_id-1];       
@@ -224,7 +222,6 @@ Vec3f make_life_more_colorful(const Scene &scene,
     // Intersection: Sphere
     else if (min_sphere_idx > -1)
     {
-        // // cout << "Intersection: Sphere" << endl;
         center = scene.vertex_data[scene.spheres[min_sphere_idx].center_vertex_id-1];
         radius = scene.spheres[min_sphere_idx].radius;
         normal_vector = sphere_normal(intersection, center, radius);
@@ -263,7 +260,7 @@ Vec3f make_life_more_colorful(const Scene &scene,
         for(int i = 0; i < scene.spheres.size() && !under_shadow; i++){
             center = scene.vertex_data[scene.spheres[i].center_vertex_id-1];
             radius = scene.spheres[i].radius;
-            t = hit_sphere(center, radius, r);
+            t = hit_sphere(center, radius, shadow_ray);
             if(t < length_w && t >= EPSILON )  
                 under_shadow = true;
         }
@@ -275,7 +272,7 @@ Vec3f make_life_more_colorful(const Scene &scene,
             B = scene.vertex_data[scene.triangles[i].indices.v1_id-1];
             C = scene.vertex_data[scene.triangles[i].indices.v2_id-1];
             normal_shadow = triangle_normal(A, B, C);
-            t = hit_triangle(A, B, C, normal_shadow, r);
+            t = hit_triangle(A, B, C, normal_shadow, shadow_ray);
             if(t < length_w && t >= EPSILON) 
                 under_shadow = true;
         }
@@ -287,7 +284,7 @@ Vec3f make_life_more_colorful(const Scene &scene,
                 B = scene.vertex_data[scene.meshes[i].faces[j].v1_id-1];
                 C = scene.vertex_data[scene.meshes[i].faces[j].v2_id-1];
                 normal_shadow = triangle_normal(A, B, C);
-                t = hit_triangle(A, B, C, normal_shadow, r);
+                t = hit_triangle(A, B, C, normal_shadow, shadow_ray);
                 if(t < length_w && t >= EPSILON) 
                 under_shadow = true;
             }
@@ -327,10 +324,8 @@ Vec3f make_life_more_colorful(const Scene &scene,
                                                                 recursion_depth);
     }
     // Clip the color
-    Vec3f temp_color = diffuse + specularity + rec_color + color;
-    // cout << "Before clipping: " <<  temp_color << endl;
     color = clip(diffuse + specularity + rec_color + color);
-    // cout << "After clipping: " << color << endl;
+    
     
     return color;                     
 }  
