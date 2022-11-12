@@ -1,9 +1,12 @@
 #include <iostream>
+#include <thread>
+#include <cstring>
+
 #include "parser.h"
 #include "ppm.h"
 #include "vectorize.h"
 #include "utils.h"
-#include <cstring>
+#include "render.h"
 
 using namespace parser;
 using namespace std;
@@ -52,30 +55,41 @@ int main(int argc, char* argv[])
         pixel_width  = (r - l) / image_width;
         pixel_height = (t - b) / image_height;
 
-        // Render 
-        int k = 0; 
-        for (int i = 0; i < image_height; i++){
-            cout << i << '/' << image_height << endl;
-            for (int j = 0; j < image_width; j++){
-                // Generate the ray
-                Ray ray = generate_ray(j, i, q, u, v, pixel_width, pixel_height, cam);  
-                int recursion_depth = scene.max_recursion_depth;
-                bool flag = true;
-                Vec3f color = make_life_more_colorful(scene, cam, ray, flag, recursion_depth);
-                // cout << "Final Color: " <<  (int) (color.x+0.5) << ' ' << (int) (color.y+0.5) << ' ' << (int) (color.z+0.5) << endl;
-                image[k++] = (int) (color.x+0.5);
-                image[k++] = (int) (color.y+0.5);
-                image[k++] = (int) (color.z+0.5);
+        // Render
+        Vec3f* result = new Vec3f[image_width * image_height];
+        const int number_of_cores = thread::hardware_concurrency();
+        
+        if (number_of_cores == 0 || image_height < number_of_cores)
+            render_scene(q, u, v, pixel_width, pixel_height, image_width, 0, image_height, scene, cam, result);
+
+        else {
+            thread* threads = new thread[number_of_cores];
+            const int height_increase = image_height / number_of_cores;
             
-            } // j
-        }  // i
-        cout << endl;
-        cout << endl;
-        cout << endl;
+            for (int i = 0; i < number_of_cores; i++) {
+                const int min_height = i * height_increase;
+                const int max_height = (i == number_of_cores - 1) ? image_height : (i + 1) * height_increase;
+                threads[i] = thread(&render_scene, q, u, v, pixel_width, pixel_height, image_width, min_height, max_height, scene, cam, result);
+            }
+        
+            for (int i = 0; i < number_of_cores; i++) threads[i].join();
+            delete[] threads;
+        }
+        
+        int k = 0;
+        for (int i = 0; i < image_width; i++) {
+            for (int j = 0; j < image_height; j++) {
+                const Vec3f pixel = result[i * image_height + j];
+                image[k++] = pixel.x;
+                image[k++] = pixel.y;
+                image[k++] = pixel.z;
+            }
+        }
+        delete[] result;
         char image_name[cam.image_name.size() + 1];
         strcpy(image_name,(cam.image_name).c_str());
         write_ppm(image_name, image, image_width, image_height); 
-
+        delete[] image;
     } // Camera
     
 }
