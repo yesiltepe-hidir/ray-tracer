@@ -11,10 +11,10 @@ namespace parser
     struct Vec3i
     {
         int x, y, z;
-        Vec3i() {}
-        Vec3i(int a, int b, int c) { x = a;   y = b;   z = c;   }
+        // Vec3i() {}
+        // Vec3i(int a, int b, int c) { x = a;   y = b;   z = c;   }
         // void operator=(const Vec3f &v)   { x = v.x; y = v.y; z = v.z; }
-        void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
+        // void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
     };
 
     struct Vec3f
@@ -109,7 +109,7 @@ namespace parser
         Vec3f origin;
         Vec3f direction;
 
-        Ray() { origin = Vec3f(0, 0, 0); direction = Vec3f(0, 0, 0); }
+        Ray() { }
         Ray(Vec3f orig, Vec3f dir) { origin = orig; direction = dir; }
     };
 }

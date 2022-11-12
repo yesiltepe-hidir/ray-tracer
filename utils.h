@@ -6,7 +6,7 @@
 #include <vector>
 
 #define MAX 9999999999
-#define EPSILON 0.0000000000001
+#define EPSILON 0.00001
 
 using namespace parser;
 using namespace std;
