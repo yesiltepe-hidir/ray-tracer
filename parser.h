@@ -11,7 +11,7 @@ namespace parser
     struct Vec3i
     {
         int x, y, z;
-        Vec3i() { x = 0; y = 0; z = 0;}
+        Vec3i() {}
         Vec3i(int a, int b, int c) { x = a;   y = b;   z = c;   }
         // void operator=(const Vec3f &v)   { x = v.x; y = v.y; z = v.z; }
         void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
@@ -20,10 +20,10 @@ namespace parser
     struct Vec3f
     {
         float x, y, z;
-        Vec3f() { x = 0; y = 0; z = 0;}
-        Vec3f(const Vec3i &v)            { x = v.x; y = v.y; z = v.z; }
+        Vec3f() {}
         Vec3f(float a, float b, float c) { x = a;   y = b;   z = c;   }
         void operator=(const Vec3f &v)   { x = v.x; y = v.y; z = v.z; }
+        Vec3f(const Vec3i &v)            { x = v.x; y = v.y; z = v.z; }
         void operator=(const Vec3i &v)   { x = v.x; y = v.y; z = v.z; }
     };
 
